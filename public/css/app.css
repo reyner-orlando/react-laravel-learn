@@ -1,0 +1,22 @@
+.custom-logo-size {
+    max-height: 50px; /* Batasi tinggi maksimum logo di desktop */
+    width: auto;      /* Memastikan rasio aspek tetap terjaga */
+    /* Anda bisa juga menggunakan max-width jika ingin mengontrol lebar */
+    /* max-width: 150px; */
+}
+
+/* Sesuaikan padding-top dengan tinggi navbar Anda */
+/* Anda bisa mengukur tinggi navbar Anda di browser developer tools */
+body {
+    padding-top: 70px; /* Contoh: jika navbar Anda tingginya sekitar 70px */
+}
+
+/* Opsional: Untuk mobile, Anda bisa membuat logo sedikit lebih kecil */
+@media (max-width: 768px) {
+    .custom-logo-size {
+        max-height: 40px; /* Tinggi logo lebih kecil di layar mobile */
+    }
+    body {
+        padding-top: 60px; /* Sesuaikan jika tinggi navbar di mobile berubah */
+    }
+}
