@@ -1,6 +1,15 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 
-const App = () => <h1>Hello from React + Vite + Laravel!</h1>;
+function App() {
+    return (
+        <div>
+            <p>Ini adalah bagian React yang interaktif</p>
+        </div>
+    );
+}
 
-ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+const root = document.getElementById('app');
+if (root) {
+    ReactDOM.createRoot(root).render(<App />);
+}
