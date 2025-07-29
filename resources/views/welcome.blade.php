@@ -38,6 +38,7 @@
 </header>
 
     <div id="app"></div> <!-- React mengontrol ini -->
+    <div id="app2"></div> <!-- React mengontrol ini -->
 
     <footer>
         <p>© 2025 My Footer</p>
