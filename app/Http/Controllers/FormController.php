@@ -9,10 +9,12 @@ class FormController extends Controller
 {
     public function submit(Request $request){
         $validated = $request->validate([
-            'nama'=> 'required|string|max:255',
+            'title'=> 'required|string|max:255',
         ]);
 
-        Peserta::create($validated);
+        Peserta::create([
+            'nama' => $validated['title'], // 👈 simpan ke kolom 'nama'
+        ]);
 
         return response()->json(['message' => 'Berhasil Disimpan']);
     }

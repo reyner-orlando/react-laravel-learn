@@ -5,12 +5,17 @@ import { motion } from 'framer-motion';
 
 function App() {
     return (
+      <div>
+      {[0].map((i) => ( 
+        <div key={i}>  
         <motion.div
-      className="container my-5"
-      initial={{ opacity: 0, y: 50 }} // dari bawah dan transparan
-      animate={{ opacity: 1, y: 0 }} // fade in dan naik ke posisi normal
-      transition={{ duration: 1
-       }}
+          
+          className="container my-3"
+          initial={{ opacity: 0, y: 50 }} // dari bawah dan transparan
+          animate={{ opacity: 1, y: 0 }} // fade in dan naik ke posisi normal
+          transition={{ duration: 1,
+          delay: i * 0.5,
+          }}
     >
 
     <div className="row">
@@ -20,16 +25,34 @@ function App() {
         </div>
       </div>
     </div>
+    </motion.div>
+    
+        <motion.div      
+      className="container my-3"
+      initial={{ opacity: 0, y: 50 }} // dari bawah dan transparan
+      animate={{ opacity: 1, y: 0 }} // fade in dan naik ke posisi normal
+      transition={{ duration: 1,
+        delay: i * 0.5 +0.25 ,// ⏳ delay bertahap per item
+       }}
+    >
   <FormInput />
-  </motion.div>
-    );
+  </motion.div> 
+  </div>
+      ))}    
+  </div>     
+      );
 }
 
 function FormInput() {
-  const [nama, setNama] = useState('');
+  const [title, setTitle] = useState('');
+  const [desc, setDesc] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState('');
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
+    setMessage('');
 
     const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
 
@@ -40,32 +63,53 @@ function FormInput() {
           'Content-Type': 'application/json',
           'X-CSRF-TOKEN': csrfToken,
         },
-        body: JSON.stringify({nama}),
+        body: JSON.stringify({title}),
     });
 
     if(response.ok){
-      alert("Berhasil Disimpan");
+      setMessage('Berhasil disimpan!');
     }else{
-      alert("Gagal Disimpan");
+      setMessage('Gagal menyimpan.');
     }
     } catch (error){
-      console.error("Error:", error);
+      setMessage('Terjadi error.');
+    }finally{
+      setLoading(false);
     }
   };
 
   return(
     <form onSubmit={handleSubmit}>
       <div className="mb-3">
-        <label htmlfor="Nama" className="form-label">Nama:</label>
+        <label htmlFor="title" className="form-label">Judul Tugas:</label>
         <input
         type="text"
-        id="nama"
+        id="title"
         className="form-control"
-        value={nama}
-        onChange={(e) => setNama(e.target.value)}
+        value={title}
+        onChange={(e) => setTitle(e.target.value)} //BELOM
       />
       </div>
-      <button type="submit" className="btn btn-primary">Kirim</button>
+      <div className="mb-3">
+        <label htmlFor="desc" className="form-label">Deskripsi:</label>
+        <input
+        type="text"
+        id="desc"
+        className="form-control"
+        value={desc}
+        onChange={(e) => setDesc(e.target.value)}
+      />
+      </div>
+
+       <button type="submit" className="btn btn-primary" disabled={loading}>
+        {loading ? 'Mengirim...' : 'Kirim'}
+      </button>
+
+      {message && (
+        <div className="mt-3 alert alert-info" role="alert">
+          {message}
+        </div>
+      )}
     </form>
   );
 }
