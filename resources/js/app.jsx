@@ -46,6 +46,7 @@ function App() {
 function FormInput() {
   const [title, setTitle] = useState('');
   const [desc, setDesc] = useState('');
+  const [waktutenggat, setWaktuTenggat] = useState('');
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
 
@@ -63,7 +64,7 @@ function FormInput() {
           'Content-Type': 'application/json',
           'X-CSRF-TOKEN': csrfToken,
         },
-        body: JSON.stringify({title}),
+        body: JSON.stringify({title, desc, waktutenggat}),
     });
 
     if(response.ok){
@@ -98,6 +99,17 @@ function FormInput() {
         className="form-control"
         value={desc}
         onChange={(e) => setDesc(e.target.value)}
+      />
+      </div>
+      <div className="mb-3">
+        <label htmlFor="waktutenggat" className="form-label">Waktu Tenggat:</label>
+        <input
+        type="datetime-local"
+        id="waktutenggat"
+        name="waktutenggat"
+        className="form-control"
+        value={waktutenggat}
+        onChange={(e) => setWaktuTenggat(e.target.value)}
       />
       </div>
 
