@@ -9,15 +9,15 @@ class FormController extends Controller
 {
     public function submit(Request $request){
         $validated = $request->validate([
-            'title'=> 'required|string|max:255',
-            'desc'=> 'required|string',
-            'waktutenggat'=> 'nullable|date',
+            'nama'=> 'required|string|max:255',
+            'deskripsi'=> 'required|string',
+            'waktu_tenggat'=> 'nullable|date',
         ]);
 
         Peserta::create([
-            'nama' => $validated['title'], // 👈 simpan ke kolom 'nama'
-            'deskripsi' => $validated['desc'], 
-            'waktu_tenggat' => $validated['waktutenggat'], 
+            'nama' => $validated['nama'], // 👈 simpan ke kolom 'nama'
+            'deskripsi' => $validated['deskripsi'], 
+            'waktu_tenggat' => $validated['waktu_tenggat'], 
         ]);
 
         return response()->json(['message' => 'Berhasil Disimpan']);

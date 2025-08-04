@@ -1,9 +1,26 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import ReactDOM from 'react-dom/client';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { motion } from 'framer-motion';
 
 function App() {
+
+  const[data, setData] = useState([]);
+  const [loadingData, setLoadingData] = useState(false);
+  
+  const fetchData = () => {
+    setLoadingData(true); 
+    fetch('/data') 
+      .then((res) => res.json())
+      .then((json) => setData([...json]))
+      .catch((err) => console.error('Gagal ambil data:', err))
+      .finally(() => setLoadingData(false));
+  };
+
+  useEffect(() => {
+    fetchData();
+  }, [])
+  
     return (
       <div>
       {[0].map((i) => ( 
@@ -35,15 +52,35 @@ function App() {
         delay: i * 0.5 +0.25 ,// ⏳ delay bertahap per item
        }}
     >
-  <FormInput />
+  <FormInput afterSubmit={fetchData} />
   </motion.div> 
+  {loadingData ? (
+  <p className="text-muted">Memuat data tugas...</p>
+) : (
+  <TampilkanData data={data} />
+)}
   </div>
       ))}    
   </div>     
       );
 }
+function TampilkanData({ data }){
+return(
+  <div className="container mt-4">
+      <h2>Daftar Tugas</h2>
+      <ul className="list-group">
+        {data.map((item) => (
+          <li key={item.id} className="list-group-item">
+            <strong>{item.nama}</strong> - {item.deskripsi} <br />
+            Deadline: {item.waktu_tenggat}
+          </li>
+        ))}
+      </ul>
+    </div>
+);
+}
 
-function FormInput() {
+function FormInput({ afterSubmit }) {
   const [title, setTitle] = useState('');
   const [desc, setDesc] = useState('');
   const [waktutenggat, setWaktuTenggat] = useState('');
@@ -64,11 +101,15 @@ function FormInput() {
           'Content-Type': 'application/json',
           'X-CSRF-TOKEN': csrfToken,
         },
-        body: JSON.stringify({title, desc, waktutenggat}),
+        body: JSON.stringify({nama: title, deskripsi: desc, waktu_tenggat: waktutenggat}),
     });
 
     if(response.ok){
       setMessage('Berhasil disimpan!');
+      setTitle('');
+        setDesc('');
+        setWaktuTenggat('');
+        afterSubmit(); // ⬅️ Fetch data terbaru setelah kirim form
     }else{
       setMessage('Gagal menyimpan.');
     }
@@ -125,11 +166,12 @@ function FormInput() {
     </form>
   );
 }
-export default FormInput;
+
 const root = document.getElementById('app');
 if (root) {
     ReactDOM.createRoot(root).render(<App />);
 }
+
 
 
 
