@@ -42,6 +42,11 @@ function App() {
         </div>
       </div>
     </div>
+      {loadingData ? (
+  <p className="text-muted">Memuat data tugas...</p>
+) : (
+  <TampilkanData data={data} />
+)}
     </motion.div>
     
         <motion.div      
@@ -54,11 +59,7 @@ function App() {
     >
   <FormInput afterSubmit={fetchData} />
   </motion.div> 
-  {loadingData ? (
-  <p className="text-muted">Memuat data tugas...</p>
-) : (
-  <TampilkanData data={data} />
-)}
+
   </div>
       ))}    
   </div>     
@@ -73,7 +74,9 @@ return(
           <li key={item.id} className="list-group-item">
             <strong>{item.nama}</strong> - {item.deskripsi} <br />
             Deadline: {item.waktu_tenggat}
-          </li>
+            <br />
+            <button className="btn btn-primary" id={item.id} key={item.id}>Done</button>
+          </li>  
         ))}
       </ul>
     </div>
