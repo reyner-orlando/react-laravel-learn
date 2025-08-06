@@ -35,13 +35,13 @@ function App() {
           }}
     >
 
-    <div className="row">
+    {/* <div className="row">
       <div className="col">
         <div className="p-4 bg-primary text-white text-center rounded">
           Konten 1 Kolom (Responsive)
         </div>
       </div>
-    </div>
+    </div> */}
       {loadingData ? (
   <p className="text-muted">Memuat data tugas...</p>
 ) : (
