@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import ReactDOM from 'react-dom/client';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { motion } from 'framer-motion';
-
+const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
 function App() {
 
   const[data, setData] = useState([]);
@@ -75,7 +75,7 @@ return(
             <strong>{item.nama}</strong> - {item.deskripsi} <br />
             Deadline: {item.waktu_tenggat}
             <br />
-            <button className="btn btn-primary" id={item.id} key={item.id}>Done</button>
+            <button className="btn btn-primary" id={item.id} key={item.id} onClick={()=>handleDone(item.id)}>Done</button>
           </li>  
         ))}
       </ul>
@@ -89,13 +89,13 @@ function FormInput({ afterSubmit }) {
   const [waktutenggat, setWaktuTenggat] = useState('');
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
-
+  
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     setMessage('');
 
-    const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+    
 
     try{
       const response = await fetch('/form-submit', {
@@ -169,6 +169,26 @@ function FormInput({ afterSubmit }) {
     </form>
   );
 }
+
+
+const handleDone = async (id) => {
+  try{
+    const response = await fetch('/done', {
+      method: 'POST',
+      headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-TOKEN': csrfToken,
+      },
+      body: JSON.stringify({id})
+    });
+
+    const result = await response.json();
+    console.log(result);
+  }catch (error){
+    console.error('Error: ', error);
+  }
+};
+
 
 const root = document.getElementById('app');
 if (root) {
