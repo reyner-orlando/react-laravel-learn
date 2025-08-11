@@ -8,6 +8,6 @@ use App\Models\Peserta;
 class DataController extends Controller
 {
     public function index(){
-        return response()->json(Peserta::all());
+        return response()->json(Peserta::paginate(10));
     }
 }

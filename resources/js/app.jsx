@@ -12,7 +12,6 @@ function App() {
     setLoadingData(true); 
     fetch('/data') 
       .then((res) => res.json())
-      .then((json) => setData([...json]))
       .catch((err) => console.error('Gagal ambil data:', err))
       .finally(() => setLoadingData(false));
   };
@@ -66,11 +65,40 @@ function App() {
       );
 }
 function TampilkanData({ data }){
+  // const [peserta, setPeserta] = useState([]);
+  const [pages, setPages] = useState(1);
+  const [lastPage, setLastPage] = useState(1);
+  const [loading, setLoading] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+
+   const fetchPage = async (page = 1) => {
+     if (pages[page]) return; // sudah di-cache
+    setLoading(true);
+    const res = await fetch(`/peserta?page=${page}`);
+    const data = await res.json();
+     setPages(prev => ({ ...prev, [page]: data.data }));
+    setLastPage(data.last_page);
+    setLoading(false);
+
+    // Prefetch halaman berikutnya
+    if (page < data.last_page) {
+      fetch(`/peserta?page=${page + 1}`)
+        .then(res => res.json())
+        .then(nextData => {
+          setPages(prev => ({ ...prev, [page + 1]: nextData.data }));
+        });
+    }
+  };
+
+  useEffect(()=> {
+    fetchPage(1);
+  }, []);
 return(
   <div className="container mt-4">
       <h2>Daftar Tugas</h2>
+      {loading  && !pages[currentPage] ? (<p>Memuat data...</p> ):
       <ul className="list-group">
-        {data.map((item) => (
+        {pages[currentPage]?.map((item) => (
           <li key={item.id} className="list-group-item">
             <strong>{item.nama}</strong> - {item.deskripsi} <br />
             Deadline: {item.waktu_tenggat}
@@ -79,7 +107,27 @@ return(
           </li>  
         ))}
       </ul>
+      }
+      {/* Pagination */}
+      <div className="mt-3">
+        {Array.from({ length: lastPage }, (_, i) => (
+          <button
+            key={i}
+            className={`btn btn-sm me-1 ${
+              currentPage === i + 1 ? "btn-primary" : "btn-outline-primary"
+            }`}
+            onClick={() => {
+              setCurrentPage(i + 1);
+              fetchPage(i + 1);
+            }}
+          >
+            {i + 1}
+          </button>
+        ))}
+      </div>
+        
     </div>
+    
 );
 }
 
