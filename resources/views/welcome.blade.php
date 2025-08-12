@@ -28,7 +28,7 @@
                     <a class="nav-link" href="#">To-Do-List</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="#">Tambah Tugas</a>
+                    <a class="nav-link" href="#tambahtugas">Tambah Tugas</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="#">Kontak</a>

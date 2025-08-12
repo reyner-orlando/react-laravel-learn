@@ -30,3 +30,11 @@ Route::get('/peserta', function (Request $request) {
 
     return response()->json($data);
 });
+Route::get('/peserta/done', function (Request $request) {
+    $perPage = 10;
+    $page = $request->get('page', 1);
+
+    $data = Peserta::where('selesai',1)->paginate($perPage, ['*'], 'page', $page);
+
+    return response()->json($data);
+});

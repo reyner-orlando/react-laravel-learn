@@ -44,7 +44,12 @@ function App() {
       {loadingData ? (
   <p className="text-muted">Memuat data tugas...</p>
 ) : (
-  <TampilkanData data={data} />
+  <TampilkanData  />
+)}
+      {loadingData ? (
+  <p className="text-muted">Memuat data tugas...</p>
+) : (
+  <TampilkanDataSelesai  />
 )}
     </motion.div>
     
@@ -64,7 +69,7 @@ function App() {
   </div>     
       );
 }
-function TampilkanData({ data }){
+function TampilkanData(){
   // const [peserta, setPeserta] = useState([]);
   const [pages, setPages] = useState(1);
   const [lastPage, setLastPage] = useState(1);
@@ -131,6 +136,75 @@ return(
 );
 }
 
+
+function TampilkanDataSelesai(){
+  const [pages, setPages] = useState(1);
+  const [lastPage, setLastPage] = useState(1);
+  const [loading, setLoading] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+
+  const fetchPage = async (page = 1) => {
+    if (pages[page]) return; // sudah di-cache
+    setLoading(true);
+    const res = await fetch(`/peserta/done?page=${page}`);
+    const data = await res.json();
+     setPages(prev => ({ ...prev, [page]: data.data }));
+    setLastPage(data.last_page);
+    setLoading(false);
+
+    // Prefetch halaman berikutnya
+    if (page < data.last_page) {
+      fetch(`/peserta/done?page=${page + 1}`)
+        .then(res => res.json())
+        .then(nextData => {
+          setPages(prev => ({ ...prev, [page + 1]: nextData.data }));
+        });
+    }
+  };
+
+
+  useEffect(()=> {
+    fetchPage(1);
+  }, []);
+return(
+  <div className="container mt-4">
+      <h2>Daftar Tugas</h2>
+      {loading  && !pages[currentPage] ? (<p>Memuat data...</p> ):
+      <ul className="list-group">
+        {pages[currentPage]?.map((item) => (
+          <li key={item.id} className="list-group-item">
+            <strong>{item.nama}</strong> - {item.deskripsi} <br />
+            Deadline: {item.waktu_tenggat}
+            <br />
+            <button className="btn btn-primary" id={item.id} key={item.id} onClick={()=>handleDone(item.id)}>Done</button>
+          </li>  
+        ))}
+      </ul>
+      }
+      {/* Pagination */}
+      <div className="mt-3">
+        {Array.from({ length: lastPage }, (_, i) => (
+          <button
+            key={i}
+            className={`btn btn-sm me-1 ${
+              currentPage === i + 1 ? "btn-primary" : "btn-outline-primary"
+            }`}
+            onClick={() => {
+              setCurrentPage(i + 1);
+              fetchPage(i + 1);
+            }}
+          >
+            {i + 1}
+          </button>
+        ))}
+      </div>
+        
+    </div>
+    
+);
+}
+
+
 function FormInput({ afterSubmit }) {
   const [title, setTitle] = useState('');
   const [desc, setDesc] = useState('');
@@ -172,7 +246,7 @@ function FormInput({ afterSubmit }) {
   };
 
   return(
-    <form onSubmit={handleSubmit}>
+    <form onSubmit={handleSubmit}id="tambahtugas">
       <div className="mb-3">
         <label htmlFor="title" className="form-label">Judul Tugas:</label>
         <input
