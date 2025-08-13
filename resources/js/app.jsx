@@ -7,7 +7,10 @@ function App() {
 
   const[data, setData] = useState([]);
   const [loadingData, setLoadingData] = useState(false);
-  
+  const [pages, setPages] = useState({});
+  const [lastPage, setLastPage] = useState(1);
+
+
   const fetchData = () => {
     setLoadingData(true); 
     fetch('/data') 
@@ -44,7 +47,11 @@ function App() {
       {loadingData ? (
   <p className="text-muted">Memuat data tugas...</p>
 ) : (
-  <TampilkanData  />
+  <TampilkanData 
+  pages={pages}
+        setPages={setPages}
+        lastPage={lastPage}
+        setLastPage={setLastPage} />
 )}
       {loadingData ? (
   <p className="text-muted">Memuat data tugas...</p>
@@ -61,7 +68,16 @@ function App() {
         delay: i * 0.5 +0.25 ,// ⏳ delay bertahap per item
        }}
     >
-  <FormInput afterSubmit={fetchData} />
+  <FormInput afterSubmit={(newItem) => {
+  // kalau mau refetch:
+    setPages(prev => {
+            const updated = { ...prev };
+            updated[1] = [newItem, ...(updated[1] || [])];
+            return updated;
+             });
+  // kalau mau langsung update state di TampilkanData tanpa fetch:
+  // panggil setPages di TampilkanData
+}} />
   </motion.div> 
 
   </div>
@@ -69,23 +85,20 @@ function App() {
   </div>     
       );
 }
-function TampilkanData(){
-  // const [peserta, setPeserta] = useState([]);
-  const [pages, setPages] = useState(1);
-  const [lastPage, setLastPage] = useState(1);
+function TampilkanData({pages, setPages, lastPage, setLastPage}) {
+  // const [pages, setPages] = useState({});
+  // const [lastPage, setLastPage] = useState(1);
   const [loading, setLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
 
-   const fetchPage = async (page = 1) => {
-     if (pages[page]) return; // sudah di-cache
+  const fetchPage = async (page = 1) => {
+    if (pages[page]) return;
     setLoading(true);
     const res = await fetch(`/peserta?page=${page}`);
     const data = await res.json();
-     setPages(prev => ({ ...prev, [page]: data.data }));
+    setPages(prev => ({ ...prev, [page]: data.data }));
     setLastPage(data.last_page);
     setLoading(false);
-
-    // Prefetch halaman berikutnya
     if (page < data.last_page) {
       fetch(`/peserta?page=${page + 1}`)
         .then(res => res.json())
@@ -95,24 +108,45 @@ function TampilkanData(){
     }
   };
 
-  useEffect(()=> {
+  useEffect(() => {
     fetchPage(1);
   }, []);
-return(
-  <div className="container mt-4">
-      <h2>Daftar Tugas</h2>
-      {loading  && !pages[currentPage] ? (<p>Memuat data...</p> ):
-      <ul className="list-group">
-        {pages[currentPage]?.map((item) => (
-          <li key={item.id} className="list-group-item">
-            <strong>{item.nama}</strong> - {item.deskripsi} <br />
-            Deadline: {item.waktu_tenggat}
-            <br />
-            <button className="btn btn-primary" id={item.id} key={item.id} onClick={()=>handleDone(item.id)}>Done</button>
-          </li>  
-        ))}
-      </ul>
+
+  const addNewItem = (item) => {
+    setPages(prev => {
+      const updated = { ...prev };
+      if (updated[1]) {
+        updated[1] = [item, ...updated[1]];
+      } else {
+        updated[1] = [item];
       }
+      return updated;
+    });
+  };
+
+  return (
+    <div className="container mt-4">
+      <h2>Daftar Tugas</h2>
+      {loading && !pages[currentPage] ? (
+        <p>Memuat data...</p>
+      ) : (
+        <ul className="list-group">
+          {pages[currentPage]?.map((item) => (
+            <li key={item.id} className="list-group-item">
+              <strong>{item.nama}</strong> - {item.deskripsi}
+              <br />
+              Deadline: {item.waktu_tenggat}
+              <br />
+              <button
+                className="btn btn-primary"
+                onClick={() => handleDone(item.id)}
+              >
+                Done
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
       {/* Pagination */}
       <div className="mt-3">
         {Array.from({ length: lastPage }, (_, i) => (
@@ -130,11 +164,100 @@ return(
           </button>
         ))}
       </div>
-        
+
+      {/* Form di sini supaya bisa langsung update state */}
+      {/* <FormInput onAdd={addNewItem} /> */}
     </div>
-    
-);
+  );
 }
+
+function FormInput({ afterSubmit  }) {
+  const [title, setTitle] = useState('');
+  const [desc, setDesc] = useState('');
+  const [waktutenggat, setWaktuTenggat] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState('');
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setMessage('');
+
+    try {
+      const response = await fetch('/form-submit', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-TOKEN': csrfToken,
+        },
+        body: JSON.stringify({
+          nama: title,
+          deskripsi: desc,
+          waktu_tenggat: waktutenggat,
+        }),
+      });
+      
+
+      if (!response.ok) throw new Error('Gagal menyimpan');
+      const json = await response.json();
+
+      console.log(json.message); // tampilkan pesan sukses
+      
+      const newItem = json.data;
+      afterSubmit(newItem);
+      setMessage('Berhasil disimpan!');
+      setTitle('');
+      setDesc('');
+      setWaktuTenggat('');
+    } catch (error) {
+      setMessage('Terjadi error saat menyimpan.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <form onSubmit={handleSubmit}id="tambahtugas">
+      <div className="mb-3">
+         <label htmlFor="title" className="form-label">Judul Tugas:</label>
+         <input
+        type="text"
+        id="title"
+        className="form-control"
+        value={title}
+        onChange={(e) => setTitle(e.target.value)} //BELOM
+      />
+      </div>
+      <div className="mb-3">
+        <label htmlFor="desc" className="form-label">Deskripsi:</label>
+        <input
+        type="text"
+        id="desc"
+        className="form-control"
+        value={desc}
+        onChange={(e) => setDesc(e.target.value)}
+      />
+      </div>
+      <div className="mb-3">
+        <label htmlFor="waktutenggat" className="form-label">Waktu Tenggat:</label>
+        <input
+        type="datetime-local"
+        id="waktutenggat"
+        name="waktutenggat"
+        className="form-control"
+        value={waktutenggat}
+        onChange={(e) => setWaktuTenggat(e.target.value)}
+      />
+      </div>
+  
+      <button type="submit" className="btn btn-primary" disabled={loading}>
+        {loading ? 'Mengirim...' : 'Kirim'}
+      </button>
+      {message && <div className="alert alert-info mt-3">{message}</div>}
+    </form>
+  );
+}
+
 
 
 function TampilkanDataSelesai(){
@@ -203,95 +326,6 @@ return(
     
 );
 }
-
-
-function FormInput({ afterSubmit }) {
-  const [title, setTitle] = useState('');
-  const [desc, setDesc] = useState('');
-  const [waktutenggat, setWaktuTenggat] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState('');
-  
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    setMessage('');
-
-    
-
-    try{
-      const response = await fetch('/form-submit', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-CSRF-TOKEN': csrfToken,
-        },
-        body: JSON.stringify({nama: title, deskripsi: desc, waktu_tenggat: waktutenggat}),
-    });
-
-    if(response.ok){
-      setMessage('Berhasil disimpan!');
-      setTitle('');
-        setDesc('');
-        setWaktuTenggat('');
-        afterSubmit(); // ⬅️ Fetch data terbaru setelah kirim form
-    }else{
-      setMessage('Gagal menyimpan.');
-    }
-    } catch (error){
-      setMessage('Terjadi error.');
-    }finally{
-      setLoading(false);
-    }
-  };
-
-  return(
-    <form onSubmit={handleSubmit}id="tambahtugas">
-      <div className="mb-3">
-        <label htmlFor="title" className="form-label">Judul Tugas:</label>
-        <input
-        type="text"
-        id="title"
-        className="form-control"
-        value={title}
-        onChange={(e) => setTitle(e.target.value)} //BELOM
-      />
-      </div>
-      <div className="mb-3">
-        <label htmlFor="desc" className="form-label">Deskripsi:</label>
-        <input
-        type="text"
-        id="desc"
-        className="form-control"
-        value={desc}
-        onChange={(e) => setDesc(e.target.value)}
-      />
-      </div>
-      <div className="mb-3">
-        <label htmlFor="waktutenggat" className="form-label">Waktu Tenggat:</label>
-        <input
-        type="datetime-local"
-        id="waktutenggat"
-        name="waktutenggat"
-        className="form-control"
-        value={waktutenggat}
-        onChange={(e) => setWaktuTenggat(e.target.value)}
-      />
-      </div>
-
-       <button type="submit" className="btn btn-primary" disabled={loading}>
-        {loading ? 'Mengirim...' : 'Kirim'}
-      </button>
-
-      {message && (
-        <div className="mt-3 alert alert-info" role="alert">
-          {message}
-        </div>
-      )}
-    </form>
-  );
-}
-
 
 const handleDone = async (id) => {
   try{

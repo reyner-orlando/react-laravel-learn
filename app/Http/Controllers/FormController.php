@@ -14,12 +14,12 @@ class FormController extends Controller
             'waktu_tenggat'=> 'nullable|date',
         ]);
 
-        Peserta::create([
+        $peserta = Peserta::create([
             'nama' => $validated['nama'], // 👈 simpan ke kolom 'nama'
             'deskripsi' => $validated['deskripsi'], 
             'waktu_tenggat' => $validated['waktu_tenggat'], 
         ]);
 
-        return response()->json(['message' => 'Berhasil Disimpan']);
+        return response()->json(['message' => 'Berhasil Disimpan', 'data' => $peserta]);
     }
 }

@@ -19,22 +19,24 @@ Route::post('/home', [GuestbookController::class, 'store'])->name('message.store
 Route::post('/form-submit', [FormController::class, 'submit']);
 
 Route::get('/data', [DataController::class, 'index']);
+Route::get('/peserta', [DataController::class, 'index']);
+Route::get('/peserta/done', [DataController::class, 'done']);
 
 Route::post('/done', [DoneButtonController::class, 'done']);
 
-Route::get('/peserta', function (Request $request) {
-    $perPage = 10;
-    $page = $request->get('page', 1);
+// Route::get('/peserta', function (Request $request) {
+//     $perPage = 10;
+//     $page = $request->get('page', 1);
 
-    $data = Peserta::paginate($perPage, ['*'], 'page', $page);
+//     $data = Peserta::paginate($perPage, ['*'], 'page', $page);
 
-    return response()->json($data);
-});
-Route::get('/peserta/done', function (Request $request) {
-    $perPage = 10;
-    $page = $request->get('page', 1);
+//     return response()->json($data);
+// });
+// Route::get('/peserta/done', function (Request $request) {
+//     $perPage = 10;
+//     $page = $request->get('page', 1);
 
-    $data = Peserta::where('selesai',1)->paginate($perPage, ['*'], 'page', $page);
+//     $data = Peserta::where('selesai',1)->paginate($perPage, ['*'], 'page', $page);
 
-    return response()->json($data);
-});
+//     return response()->json($data);
+// });
