@@ -37,13 +37,7 @@ function App() {
           }}
     >
 
-    {/* <div className="row">
-      <div className="col">
-        <div className="p-4 bg-primary text-white text-center rounded">
-          Konten 1 Kolom (Responsive)
-        </div>
-      </div>
-    </div> */}
+        <h2 className="mt-3 text-center">Daftar Tugas</h2>
       {loadingData ? (
   <p className="text-muted">Memuat data tugas...</p>
 ) : (
@@ -52,7 +46,7 @@ function App() {
         setPages={setPages}
         lastPage={lastPage}
         setLastPage={setLastPage} />
-)}
+)}<h2 className="mt-3 text-center">Daftar Tugas Selesai</h2>
       {loadingData ? (
   <p className="text-muted">Memuat data tugas...</p>
 ) : (
@@ -126,19 +120,27 @@ function TampilkanData({pages, setPages, lastPage, setLastPage}) {
 
   return (
     <div className="container mt-4">
-      <h2>Daftar Tugas</h2>
       {loading && !pages[currentPage] ? (
-        <p>Memuat data...</p>
+        <div className="text-center">
+        <p >Memuat data...</p>
+        </div>
       ) : (
-        <ul className="list-group">
+        <>        
+        {/* <h2 className="text-center">{currentPage}</h2> */}
+        <ul className="list-group mx-auto" style={{ maxWidth: "75%" }}>
           {pages[currentPage]?.map((item) => (
-            <li key={item.id} className="list-group-item">
-              <strong>{item.nama}</strong> - {item.deskripsi}
+            <li key={item.id} className="list-group-item" style={{position:"relative"}}>
+              <strong>Judul: {item.nama}</strong>  <br />Deskripsi: {item.deskripsi}
               <br />
               Deadline: {item.waktu_tenggat}
-              <br />
               <button
-                className="btn btn-primary"
+                className="btn btn-success"
+                style={{
+            position: "absolute",
+            right: 10,
+            top: "50%",
+            transform: "translateY(-50%)",
+          }}
                 onClick={() => handleDone(item.id)}
               >
                 Done
@@ -146,9 +148,10 @@ function TampilkanData({pages, setPages, lastPage, setLastPage}) {
             </li>
           ))}
         </ul>
+        </>
       )}
       {/* Pagination */}
-      <div className="mt-3">
+      <div className="mt-3 text-center">
         {Array.from({ length: lastPage }, (_, i) => (
           <button
             key={i}
@@ -217,6 +220,7 @@ function FormInput({ afterSubmit  }) {
   };
 
   return (
+    <div className="card">
     <form onSubmit={handleSubmit}id="tambahtugas">
       <div className="mb-3">
          <label htmlFor="title" className="form-label">Judul Tugas:</label>
@@ -255,6 +259,7 @@ function FormInput({ afterSubmit  }) {
       </button>
       {message && <div className="alert alert-info mt-3">{message}</div>}
     </form>
+  </div>
   );
 }
 
@@ -291,7 +296,6 @@ function TampilkanDataSelesai(){
   }, []);
 return(
   <div className="container mt-4">
-      <h2>Daftar Tugas</h2>
       {loading  && !pages[currentPage] ? (<p>Memuat data...</p> ):
       <ul className="list-group">
         {pages[currentPage]?.map((item) => (
@@ -299,7 +303,7 @@ return(
             <strong>{item.nama}</strong> - {item.deskripsi} <br />
             Deadline: {item.waktu_tenggat}
             <br />
-            <button className="btn btn-primary" id={item.id} key={item.id} onClick={()=>handleDone(item.id)}>Done</button>
+            {/* <button className="btn btn-primary mt-3" id={item.id} key={item.id} onClick={()=>handleDone(item.id)}>Done</button> */}
           </li>  
         ))}
       </ul>
