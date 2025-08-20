@@ -46,7 +46,7 @@ function App() {
         setPages={setPages}
         lastPage={lastPage}
         setLastPage={setLastPage} />
-)}<h2 className="mt-3 text-center">Daftar Tugas Selesai</h2>
+)}<h2 className="mt-4 text-center">Daftar Tugas Selesai</h2>
       {loadingData ? (
   <p className="text-muted">Memuat data tugas...</p>
 ) : (
@@ -151,7 +151,7 @@ function TampilkanData({pages, setPages, lastPage, setLastPage}) {
         </>
       )}
       {/* Pagination */}
-      <div className="mt-3 text-center">
+      <div className="my-3 text-center">
         {Array.from({ length: lastPage }, (_, i) => (
           <button
             key={i}
@@ -220,7 +220,8 @@ function FormInput({ afterSubmit  }) {
   };
 
   return (
-    <div className="card">
+    <div className="card p-3 mx-auto" style={{maxWidth:"75%"}}>
+      <h2 className="text-center">Tambah Tugas</h2>
     <form onSubmit={handleSubmit}id="tambahtugas">
       <div className="mb-3">
          <label htmlFor="title" className="form-label">Judul Tugas:</label>
@@ -253,10 +254,11 @@ function FormInput({ afterSubmit  }) {
         onChange={(e) => setWaktuTenggat(e.target.value)}
       />
       </div>
-  
-      <button type="submit" className="btn btn-primary" disabled={loading}>
+    <div className="text-center">
+      <button type="submit" className="btn btn-primary " disabled={loading}>
         {loading ? 'Mengirim...' : 'Kirim'}
       </button>
+    </div>
       {message && <div className="alert alert-info mt-3">{message}</div>}
     </form>
   </div>
@@ -297,10 +299,10 @@ function TampilkanDataSelesai(){
 return(
   <div className="container mt-4">
       {loading  && !pages[currentPage] ? (<p>Memuat data...</p> ):
-      <ul className="list-group">
+      <ul className="list-group mx-auto" style= {{maxWidth:"75%"}}>
         {pages[currentPage]?.map((item) => (
           <li key={item.id} className="list-group-item">
-            <strong>{item.nama}</strong> - {item.deskripsi} <br />
+            <strong>Judul: {item.nama}</strong> <br />Deskripsi: {item.deskripsi} <br />
             Deadline: {item.waktu_tenggat}
             <br />
             {/* <button className="btn btn-primary mt-3" id={item.id} key={item.id} onClick={()=>handleDone(item.id)}>Done</button> */}
@@ -309,7 +311,7 @@ return(
       </ul>
       }
       {/* Pagination */}
-      <div className="mt-3">
+      <div className="my-3 text-center">
         {Array.from({ length: lastPage }, (_, i) => (
           <button
             key={i}
